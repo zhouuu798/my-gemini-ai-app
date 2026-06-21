@@ -3,49 +3,19 @@ from openai import OpenAI
 import base64
 
 # ==========================================
-# 0. 基础配置与高级 UI 样式注入（含开场动画）
+# 0. 基础配置与高级 UI 样式注入（剔除冲突动画）
 # ==========================================
 API_KEY = "sk-7IFiLvmhRAgnQb6StgTYPxMbBVGS4G4ORMi5shfRMn9gFyyP"  
 BASE_URL = "https://api.vectorengine.ai/v1"  
 
 客户端 = OpenAI(api_key=API_KEY, base_url=BASE_URL)
 
-# 注入高级设计感 CSS 样式与加载动画
+# 注入高级设计感 CSS 样式（去除了全屏遮罩动画）
 st.set_page_config(page_title="Pro-15s海外广告提示词生成器", layout="wide", initial_sidebar_state="collapsed")
 
 st.markdown("""
 <style>
-    /* 1. 全屏奢华开场动画 */
-    @keyframes fadeOut {
-        0% { opacity: 1; visibility: visible; }
-        90% { opacity: 1; }
-        100% { opacity: 0; visibility: hidden; }
-    }
-    @keyframes textGlow {
-        0%, 100% { text-shadow: 0 0 10px rgba(255,75,75,0.5); }
-        50% { text-shadow: 0 0 30px rgba(255,75,75,0.9); }
-    }
-    .splash-screen {
-        position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
-        background: radial-gradient(circle, #1a1c24 0%, #0e1117 100%);
-        z-index: 99999; display: flex; flex-direction: column;
-        justify-content: center; align-items: center;
-        animation: fadeOut 2.2s forwards; animation-delay: 0.5s;
-        pointer-events: none;
-    }
-    .splash-logo {
-        font-size: 3rem; font-weight: 800; color: #ff4b4b;
-        margin-bottom: 20px; font-family: 'Helvetica Neue', sans-serif;
-        animation: textGlow 2s infinite; letter-spacing: 2px;
-    }
-    .splash-loader {
-        width: 50px; height: 50px; border: 3px solid #262730;
-        border-radius: 50%; border-top-color: #ff4b4b;
-        animation: spin 1s ease-in-out infinite;
-    }
-    @keyframes spin { to { transform: rotate(360deg); } }
-
-    /* 2. 网页高档卡片与渐变字体设计 */
+    /* 网页高档卡片与渐变字体设计 */
     .main-title {
         background: linear-gradient(45deg, #ff4b4b, #ff7676);
         -webkit-background-clip: text; -webkit-text-fill-color: transparent;
@@ -61,11 +31,6 @@ st.markdown("""
         font-size: 0.85rem; color: #a3a8b4; border: 1px solid #41444c;
     }
 </style>
-
-<div class="splash-screen">
-    <div class="splash-logo">🎬 AI DIRECTOR PRO</div>
-    <div class="splash-loader"></div>
-</div>
 """, unsafe_allow_html=True)
 
 
@@ -136,7 +101,7 @@ def 返回上一步():
         st.session_state.当前步骤 = 上一步
         st.rerun()
 
-# 页面顶部高级标题栏
+# 页面顶部标题栏
 st.markdown("""<div class="main-title">🎬 15秒海外短视频广告提示词大师</div>""", unsafe_allow_html=True)
 st.markdown(f"""<span class="step-indicator">📍 当前位置：{st.session_state.当前步骤.replace("_", " -> ")}</span>""", unsafe_allow_html=True)
 st.write("")
@@ -240,7 +205,7 @@ elif st.session_state.当前步骤 == "步骤二_选择创意":
                 输出结果 = 调用大模型(系统提示词, 用户提示词=None, 历史记录=st.session_state.剧本历史记录, 图片列表=st.session_state.产品图片base64)
                 
                 st.session_state.当前剧本草案 = 输出结果
-                st.session_state.剧本历史记录.append({"role": "assistant", "content": 输出结果})
+                st.session_state.剧本历史记录.append({"role": "assistant", "content": 输出 results})
                 跳转至("步骤二_多轮迭代")
 
 
@@ -283,7 +248,7 @@ elif st.session_state.当前步骤 == "步骤三_最终交付":
         
     st.subheader("🚀 最终交付：符合AI视频生成模型规范的提示词（Prompt）")
     
-    # 定义全局固定死模板
+    # 固定的严苛模板定义
     固定_基础设定 = "【图片1】为产品图，全部台词为英文 。"
     固定_氛围与画质 = """风格核心:短剧剧组拍摄、真实摄影、极致逼真细节、Photirealism-真人实景拍摄、动作自然流程、逻辑正常 。高端摄影系统+经典胶片美学+真实原生皮肤+自然光影+生活化瑕疵细节=原生真实画面
 1、摄影设备参数(奠定画质基底)Shot on ARRI Alexa 65, Vintage Cooke 焦头, SonyVenice2机身，大光圈f/1.4，高端电影摄影机光学色散、轻微镜头畸变
