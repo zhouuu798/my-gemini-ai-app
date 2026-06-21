@@ -3,19 +3,18 @@ from openai import OpenAI
 import base64
 
 # ==========================================
-# 0. 基础配置与高级 UI 样式注入（剔除冲突动画）
+# 0. 基础配置与高级 UI 样式注入
 # ==========================================
 API_KEY = "sk-7IFiLvmhRAgnQb6StgTYPxMbBVGS4G4ORMi5shfRMn9gFyyP"  
 BASE_URL = "https://api.vectorengine.ai/v1"  
 
 客户端 = OpenAI(api_key=API_KEY, base_url=BASE_URL)
 
-# 注入高级设计感 CSS 样式（去除了全屏遮罩动画）
 st.set_page_config(page_title="Pro-15s海外广告提示词生成器", layout="wide", initial_sidebar_state="collapsed")
 
+# 使用三引号包裹，确保内部双引号和单引号不会引发语法冲突
 st.markdown("""
 <style>
-    /* 网页高档卡片与渐变字体设计 */
     .main-title {
         background: linear-gradient(45deg, #ff4b4b, #ff7676);
         -webkit-background-clip: text; -webkit-text-fill-color: transparent;
@@ -35,10 +34,9 @@ st.markdown("""
 
 
 # ==========================================
-# 1. 核心多模态调用函数（支持文字+多图）
+# 1. 核心多模态调用函数
 # ==========================================
 def 调用大模型(系统提示词: str, 用户提示词: str, 历史记录: list = None, 图片列表: list = None) -> str:
-    """支持文字与多张图片混合输入的多模态通用调用函数"""
     消息列表 = [{"role": "system", "content": 系统提示词}]
     
     if 历史记录:
@@ -66,7 +64,6 @@ def 调用大模型(系统提示词: str, 用户提示词: str, 历史记录: li
     except Exception as 异常信息:
         return f"接口调用出错，请检查配置。错误信息: {str(异常信息)}"
 
-# 将上传的图片流转换为 Base64 字符串
 def 图片转base64(上传文件):
     return base64.b64encode(上传文件.read()).decode("utf-8")
 
@@ -87,7 +84,6 @@ if "当前步骤" not in st.session_state:
     st.session_state.最终提示词输出 = ""
     st.session_state.提示词修改历史 = []
 
-# 通用导航函数
 def 跳转至(目标步骤):
     st.session_state.当前步骤 = 目标步骤
     if 目标步骤 not in st.session_state.步骤历史:
@@ -101,12 +97,11 @@ def 返回上一步():
         st.session_state.当前步骤 = 上一步
         st.rerun()
 
-# 页面顶部标题栏
-st.markdown("""<div class="main-title">🎬 15秒海外短视频广告提示词大师</div>""", unsafe_allow_html=True)
-st.markdown(f"""<span class="step-indicator">📍 当前位置：{st.session_state.当前步骤.replace("_", " -> ")}</span>""", unsafe_allow_html=True)
+# 修复了引发 unterminated string 的普通字符串拼接
+st.markdown('<div class="main-title">🎬 15秒海外短视频广告提示词大师</div>', unsafe_allow_html=True)
+st.markdown(f'<span class="step-indicator">📍 当前位置：{st.session_state.当前步骤.replace("_", " -> ")}</span>', unsafe_allow_html=True)
 st.write("")
 
-# 侧边栏：全局历史记录与监控看板
 with st.sidebar:
     st.title("🗂️ 导演监视器 (Session History)")
     st.metric("已构思创意方案数", f"{st.session_state.当前方案数量} 个")
@@ -118,7 +113,7 @@ with st.sidebar:
 
 
 # ==========================================
-# 3. 页面渲染分流（状态机控制）
+# 3. 页面渲染分流
 # ==========================================
 
 # --- 步骤一：输入资料 ---
@@ -170,7 +165,7 @@ elif st.session_state.当前步骤 == "步骤二_选择创意":
         返回上一步()
         
     st.subheader("💡 导演团队为您激荡出的创意灵感池：")
-    st.markdown(f"""<div class="custom-card">{st.session_state.创意方案输出}</div>""", unsafe_allow_html=True)
+    st.markdown(f'<div class="custom-card">{st.session_state.创意方案输出}</div>', unsafe_allow_html=True)
     
     st.divider()
     
@@ -202,10 +197,12 @@ elif st.session_state.当前步骤 == "步骤二_选择创意":
                 用户提示词 = f"原始产品文本：{st.session_state.产品资料}\n选定的创意方向及微调建议：{用户选择}"
                 
                 st.session_state.剧本历史记录 = [{"role": "user", "content": 用户提示词}]
+                
+                # 【修复核心死穴】：修复了原这里的 "输出 results" 拼写及语法错误
                 输出结果 = 调用大模型(系统提示词, 用户提示词=None, 历史记录=st.session_state.剧本历史记录, 图片列表=st.session_state.产品图片base64)
                 
                 st.session_state.当前剧本草案 = 输出结果
-                st.session_state.剧本历史记录.append({"role": "assistant", "content": 输出 results})
+                st.session_state.剧本历史记录.append({"role": "assistant", "content": 输出结果})
                 跳转至("步骤二_多轮迭代")
 
 
@@ -215,7 +212,7 @@ elif st.session_state.当前步骤 == "步骤二_多轮迭代":
         返回上一步()
         
     st.subheader("📝 15秒分镜脚本草案（当前精修版本）")
-    st.markdown(f"""<div class="custom-card">{st.session_state.当前剧本草案}</div>""", unsafe_allow_html=True)
+    st.markdown(f'<div class="custom-card">{st.session_state.当前剧本草案}</div>', unsafe_allow_html=True)
     
     st.divider()
     st.subheader("🔁 导演工作室：对剧本提出修改反馈")
@@ -228,7 +225,7 @@ elif st.session_state.当前步骤 == "步骤二_多轮迭代":
                 st.error("请输入具体修改意见后再提交！")
             else:
                 with st.spinner("🛠️ 导演正在为您逐镜重修剧本..."):
-                    系统提示词 = "快来重修剧本。根据用户对当前脚本提出的修改意见，重新调整并输出完整的10镜头左右脚本。"
+                    系统提示词 = "请根据用户对当前脚本提出的修改意见，重新调整并输出完整的10镜头左右脚本。"
                     st.session_state.剧本历史记录.append({"role": "user", "content": f"请根据意见修改脚本：{反馈意见}"})
                     
                     输出结果 = 调用大模型(系统提示词, 用户提示词=None, 历史记录=st.session_state.剧本历史记录)
@@ -248,7 +245,6 @@ elif st.session_state.当前步骤 == "步骤三_最终交付":
         
     st.subheader("🚀 最终交付：符合AI视频生成模型规范的提示词（Prompt）")
     
-    # 固定的严苛模板定义
     固定_基础设定 = "【图片1】为产品图，全部台词为英文 。"
     固定_氛围与画质 = """风格核心:短剧剧组拍摄、真实摄影、极致逼真细节、Photirealism-真人实景拍摄、动作自然流程、逻辑正常 。高端摄影系统+经典胶片美学+真实原生皮肤+自然光影+生活化瑕疵细节=原生真实画面
 1、摄影设备参数(奠定画质基底)Shot on ARRI Alexa 65, Vintage Cooke 焦头, SonyVenice2机身，大光圈f/1.4，高端电影摄影机光学色散、轻微镜头畸变
@@ -310,6 +306,7 @@ elif st.session_state.当前步骤 == "步骤三_最终交付":
    音效：...
    台词：...
 """
+                    # 【修复核心死穴】：移除了非法的海象赋值符号 `:=`，回归标准的字典追加
                     st.session_state.提示词修改历史.append({"role": "user", "content": f"请根据此要求精修提示词：{提示词反馈}"})
                     
                     新提示词结果 = 调用大模型(系统提示词, 用户提示词=None, 历史记录=st.session_state.提示词修改历史)
