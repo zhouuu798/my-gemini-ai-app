@@ -97,44 +97,4 @@ def 调用大模型(系统提示词: str, 用户提示词: str, 历史记录: li
             messages=消息列表,
             temperature=0.7
         )
-        return 请求回复.choices[0].message.content
-    except Exception as 异常信息:
-        return f"接口调用出错，请检查配置。错误信息: {str(异常信息)}"
-
-# 将上传的图片流转换为 Base64 字符串
-def 图片转base64(上传文件):
-    return base64.b64encode(上传文件.read()).decode("utf-8")
-
-
-# ==========================================
-# 2. 全局状态机与历史记录初始化
-# ==========================================
-if "当前步骤" not in st.session_state:
-    st.session_state.当前步骤 = "步骤一_输入资料"
-    st.session_state.步骤历史 = ["步骤一_输入资料"] 
-    st.session_state.产品资料 = ""
-    st.session_state.产品图片base64 = []
-    st.session_state.当前方案数量 = 3
-    st.session_state.创意方案输出 = ""
-    st.session_state.选定的创意 = ""
-    st.session_state.剧本历史记录 = []
-    st.session_state.当前剧本草案 = ""
-    st.session_state.最终提示词输出 = ""
-    st.session_state.提示词修改历史 = []
-
-# 通用导航函数
-def 跳转至(目标步骤):
-    st.session_state.当前步骤 = 目标步骤
-    if 目标步骤 not in st.session_state.步骤历史:
-        st.session_state.步骤历史.append(目标步骤)
-    st.rerun()
-
-def 返回上一步():
-    if len(st.session_state.步骤历史) > 1:
-        st.session_state.步骤历史.pop() 
-        上一步 = st.session_state.步骤历史[-1]
-        st.session_state.当前步骤 = 上一步
-        st.rerun()
-
-# 页面顶部高级标题栏
-st.markdown('<div class="main-title">🎬 15秒海外短视频广告提示词大师</div>
+        return 请求回复.choices[0].message.
